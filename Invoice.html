@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsive Invoice Tool</title>
+  <style>
+    :root{
+      --bg:#0f172a;--card:#111827ee;--ink:#e5e7eb;--ink-dim:#cbd5e1;--accent:#22c55e;--ring:#3b82f6;--round:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1224 0%,#0f172a 60%);color:var(--ink);font:14px/1.4 system-ui}
+    .container{max-width:1100px;margin:24px auto;padding:16px}
+    .card{background:var(--card);border:1px solid #1f2937;border-radius:var(--round);padding:16px;backdrop-filter:blur(6px)}
+    h1.title{font-size:22px;font-weight:700}
+    table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;margin-top:12px}
+    th,td{border-bottom:1px solid #243049;padding:10px;white-space:nowrap}
+    th{font-weight:600;color:#93c5fd;text-align:left}
+    input{width:100%;background:#0b1020;border:1px solid #28324a;border-radius:10px;color:var(--ink);padding:8px;outline:none}
+    .btn{margin-top:12px;background:#2563eb;color:white;border:none;padding:10px 14px;border-radius:12px;cursor:pointer}
+    .btn:hover{filter:brightness(1.15)}
+    .right{text-align:right}
+    @media (max-width:900px){.container{padding:10px}}
+    @media (max-width:600px){body{font-size:13px} th,td{padding:6px;font-size:12px} input{font-size:12px}}
+    @media print{body{background:white}.no-print{display:none} .card{border:0;box-shadow:none;background:white;color:black}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1 class="title">Responsive Invoice Tool</h1>
+      <table id="itemsTable">
+        <thead>
+          <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th class="no-print">Action</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn no-print" onclick="addRow()">Add Item</button>
+      <hr>
+      <div class="right">Subtotal: <span id="subtotal">0</span></div>
+      <div class="right">Tax (10%): <span id="tax">0</span></div>
+      <div class="right">Grand Total: <span id="grandTotal">0</span></div>
+      <button class="btn no-print" onclick="window.print()">Print Invoice</button>
+    </div>
+  </div>
+  <script>
+    function addRow(){
+      const tbody=document.querySelector("#itemsTable tbody");
+      const row=document.createElement("tr");
+      row.innerHTML=`
+        <td><input type="text" placeholder="Item"></td>
+        <td><input type="number" min="1" value="1" oninput="updateTotals()"></td>
+        <td><input type="number" min="0" value="0" oninput="updateTotals()"></td>
+        <td class="lineTotal">0</td>
+        <td class="no-print"><button onclick="this.closest('tr').remove();updateTotals();">✖</button></td>
+      `;
+      tbody.appendChild(row);
+      updateTotals();
+    }
+    function updateTotals(){
+      let subtotal=0;
+      document.querySelectorAll("#itemsTable tbody tr").forEach(tr=>{
+        const qty=Number(tr.children[1].children[0].value)||0;
+        const price=Number(tr.children[2].children[0].value)||0;
+        const total=qty*price;
+        tr.querySelector(".lineTotal").innerText=total.toFixed(2);
+        subtotal+=total;
+      });
+      const tax=subtotal*0.1;
+      const grand=subtotal+tax;
+      document.getElementById("subtotal").innerText=subtotal.toFixed(2);
+      document.getElementById("tax").innerText=tax.toFixed(2);
+      document.getElementById("grandTotal").innerText=grand.toFixed(2);
+    }
+    addRow();
+  </script>
+</body>
+</html>
+
